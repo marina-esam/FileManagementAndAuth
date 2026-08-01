@@ -1,24 +1,14 @@
-// Import the Mongoose library to interact with MongoDB
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
-// Create a function responsible for connecting to the database
-const dbConnection = () => {
-    // Start the connection process using the database URL stored in the .env file
-    mongoose
-        .connect(process.env.DB_URL)
-
-        // This block runs if the connection is successful
-        .then((conn) => {
-            // Print a success message along with the database host name
-            console.log(`Database connected: ${conn.connection.host}`);
-        })
-
-        // This block runs if the connection fails
-        .catch((err) => {
-            // Print an error message and the reason for the failure
-            console.log("Database connection failed", err);
-        });
+const connectDB = async () => {
+    try {
+        const DB = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/file-management-db';
+        const conn = await mongoose.connect(DB);
+        console.log(`MongoDB Connected: ${conn.connection.host}`);
+    } catch (error) {
+        console.error(`Database Connection Error: ${error.message}`);
+        process.exit(1);
+    }
 };
 
-// Export the function so it can be used in other files
-module.exports = dbConnection;
+module.exports = connectDB;
