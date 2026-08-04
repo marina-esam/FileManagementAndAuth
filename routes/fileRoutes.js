@@ -5,8 +5,9 @@ const upload = require('../middleware/multer');
 
 const router = express.Router();
 
-// Protect all file management routes
 router.use(authController.protect);
+
+router.get('/stats', fileController.getFileStats);
 
 router
     .route('/')

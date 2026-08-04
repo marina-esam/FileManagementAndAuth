@@ -5,24 +5,26 @@ const globalErrorHandler = require('./middleware/errorHandler');
 
 const authRouter = require('./routes/authRoutes');
 const fileRouter = require('./routes/fileRoutes');
+const userRouter = require('./routes/userRoutes');
 
 const app = express();
 
-// Middlewares
+// ── Middlewares ───────────────────────────────────────────────────────────────
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Mount Routes
+// ── Mount Routes ──────────────────────────────────────────────────────────────
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/files', fileRouter);
+app.use('/api/v1/users', userRouter);
 
-// Handle Unhandled Routes
+// ── Handle Unmatched Routes ───────────────────────────────────────────────────
 app.all('{*any}', (req, res, next) => {
     next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
-// Global Error Handler
+// ── Global Error Handler ──────────────────────────────────────────────────────
 app.use(globalErrorHandler);
 
 module.exports = app;
