@@ -39,12 +39,11 @@ fileSchema.virtual('sizeInMB').get(function () {
     return (this.size / (1024 * 1024)).toFixed(2) + ' MB';
 });
 
-fileSchema.pre(/^find/, function (next) {
+fileSchema.pre(/^find/, function () {
     this.populate({
         path: 'owner',
-        select: 'firstName lastName email',
+        select: 'name email',
     });
-    next();
 });
 
 const File = mongoose.model('File', fileSchema);

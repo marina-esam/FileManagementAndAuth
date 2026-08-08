@@ -1,35 +1,31 @@
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 
-/**
- * Sends an email using Nodemailer.
- * Configure via .env:
- *   EMAIL_HOST=sandbox.smtp.mailtrap.io
- *   EMAIL_PORT=2525
- *   EMAIL_USER=<your_mailtrap_user>
- *   EMAIL_PASS=<your_mailtrap_pass>
- *   EMAIL_FROM=noreply@filemanager.com
- */
-const sendEmail = async ({ to, subject, text }) => {
-    // 1) Create a transporter (Mailtrap for dev, swap for Gmail/SES in production)
+const sendEmail = async (options) => {
     const transporter = nodemailer.createTransport({
-        host: process.env.EMAIL_HOST,
-        port: process.env.EMAIL_PORT,
+        service: "SendGrid",
         auth: {
-            user: process.env.EMAIL_USER,
+            user: process.env.EMAIL_USER || "apikey",
             pass: process.env.EMAIL_PASS,
         },
     });
 
-    // 2) Define the email options
+    // Support both parameter formats: { to, subject, text } or { email, subject, message }
+    const to = options.to || options.email;
+    const text = options.text || options.message;
+    const subject = options.subject;
+
+    // SendGrid requires a verified sender email for the 'from' field
+    const from = process.env.EMAIL_FROM || `FILE MANAGEMENT SYSTEM <${process.env.EMAIL_USER}>`;
+
     const mailOptions = {
-        from: process.env.EMAIL_FROM || 'File Manager <noreply@filemanager.com>',
+        from,
         to,
         subject,
         text,
     };
 
-    // 3) Send the email
     await transporter.sendMail(mailOptions);
 };
 
 module.exports = sendEmail;
+

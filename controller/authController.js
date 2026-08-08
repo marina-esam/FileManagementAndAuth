@@ -24,18 +24,12 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 exports.signUp = catchAsync(async (req, res, next) => {
-    const { firstName, lastName, email, password, phone, age, gender, username } =
-        req.body;
+    const { name, email, password } = req.body;
 
     const newUser = await User.create({
-        firstName,
-        lastName,
+        name,
         email,
         password,
-        phone,
-        age,
-        gender,
-        username,
     });
 
     createSendToken(newUser, 201, res);
@@ -105,7 +99,18 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
             message: 'Reset token sent to email',
         });
     } catch (err) {
-        // If email fails, clear the token fields so the user can try again
+        console.log('⚠️ SMTP not configured or email failed. Dev reset URL:', resetURL);
+
+        // In development mode, return the token directly so you can test resetPassword in Postman
+        if (process.env.NODE_ENV === 'development') {
+            return res.status(200).json({
+                status: 'success',
+                message: 'Token generated! (Email SMTP not configured in .env, token provided for dev testing)',
+                resetToken,
+                resetURL,
+            });
+        }
+
         user.passwordResetToken = undefined;
         user.passwordResetExpires = undefined;
         await user.save({ validateBeforeSave: false });
